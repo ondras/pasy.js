@@ -1,7 +1,7 @@
 pasy.Scene = function(parent) {
 	this._particleSets = [];
 	this._camera = new Camera();
-	this._gravity = vec3.fromValues(0, -1e-7, 0);
+
 	this._eye = vec3.create();
 	this._center = vec3.create();
 	this._up = vec3.fromValues(0, 1, 0);
@@ -64,6 +64,7 @@ pasy.Scene.prototype = {
 	_tick: function() {
 		requestAnimationFrame(this._tick);
 		var gl = this._gl;
+		var camera = this._camera;
 
 		if (this._node.width != this._node.clientWidth || this._node.height != this._node.clientHeight) {
 			this._sync();
@@ -71,21 +72,16 @@ pasy.Scene.prototype = {
 		
 		/* program-independent stuff */
 
-		var now = Date.now();
-//		gl.uniform1i(u.uCurrentTime, now);
-		var t = now / 3e4;
-		var R = 20;
+		var t = Date.now() / 3e3;
+		var R = 2;
 		this._eye[0] = R*Math.cos(t);
 		this._eye[2] = R*Math.sin(t);
-		this._camera.lookAt(this._eye, this._center, this._up);
+		camera.lookAt(this._eye, this._center, this._up);
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
+
 		this._particleSets.forEach(function(particleSet) {
-
-//			gl.uniformMatrix4fv(u.uProjection, false, this._camera.pMatrix);
-//			gl.uniform3fv(u.uGravity, this._gravity);
-			particleSet.render();
-
+			particleSet.render(camera);
 		});
 
 	}

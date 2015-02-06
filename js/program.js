@@ -1,9 +1,8 @@
 var Program = function(gl, vsSource, fsSource) {
-	this.gl = gl;
+	this._gl = gl;
 	this.attributes = {};
 	this.uniforms = {};
 
-	/* FIXME */
 	var vs = this._shaderFromString(gl.VERTEX_SHADER, vsSource);
 	var fs = this._shaderFromString(gl.FRAGMENT_SHADER, fsSource);
 
@@ -31,15 +30,15 @@ var Program = function(gl, vsSource, fsSource) {
 		this.uniforms[info.name] = gl.getUniformLocation(program, info.name);
 	}
 
-	this.gl = gl;
 	this.program = program;
 }
 
 Program.prototype.use = function() {
-	this.gl.useProgram(this.program);
+	var gl = this._gl;
+	gl.useProgram(this.program);
 
 	for (var p in this.attributes) { 
-		this.gl.enableVertexAttribArray(this.attributes[p]);
+		gl.enableVertexAttribArray(this.attributes[p]);
 	}
 }
 
@@ -47,7 +46,7 @@ Program.prototype._shaderFromId = function(id) {
 	var node = document.querySelector("#" + id);
 	if (!node) { throw new Error("Cannot find shader for ID '"+id+"'"); }
 
-	var gl = this.gl;
+	var gl = this._gl;
 
 	var src = "";
 	var child = node.firstChild;
@@ -69,7 +68,7 @@ Program.prototype._shaderFromId = function(id) {
 }
 
 Program.prototype._shaderFromString = function(type, str) {
-	var gl = this.gl;
+	var gl = this._gl;
 
 	var shader = gl.createShader(type);
 	gl.shaderSource(shader, str);
