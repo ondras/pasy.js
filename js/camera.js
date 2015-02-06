@@ -29,6 +29,6 @@ Camera.prototype.lookFrom = function(eye, rotX, rotY, rotZ) {
 }
 
 Camera.prototype.syncPort = function(node) {
-	this.configure({aspect: node.width/node.height});
+	this.configure({aspect: node.clientWidth/node.clientHeight});
 	return this;
 }

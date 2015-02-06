@@ -1,30 +1,38 @@
-var Program = function(gl, def) {
+var Program = function(gl, vsSource, fsSource) {
 	this.gl = gl;
 	this.attributes = {};
 	this.uniforms = {};
 
-	var vs = (def.vs ? this._shaderFromString(gl.VERTEX_SHADER, def.vs) : this._shaderFromId(def.vsId));
-	var fs = (def.fs ? this._shaderFromString(gl.FRAGMENT_SHADER, def.fs) : this._shaderFromId(def.fsId));
+	/* FIXME */
+	var vs = this._shaderFromString(gl.VERTEX_SHADER, vsSource);
+	var fs = this._shaderFromString(gl.FRAGMENT_SHADER, fsSource);
 
-	this.program = gl.createProgram();
-	gl.attachShader(this.program, vs);
-	gl.attachShader(this.program, fs);
-	gl.linkProgram(this.program);
+	var program = gl.createProgram();
+	gl.attachShader(program, vs);
+	gl.attachShader(program, fs);
+	gl.linkProgram(program);
 
-	if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 		throw new Error("Could not link the shader program");
 	}
 
 	gl.deleteShader(vs);
 	gl.deleteShader(fs);
 
-	(def.attributes || []).forEach(function(name) {
-		this.attributes[name] = gl.getAttribLocation(this.program, name);
-	}, this);
+	var count = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+	for (var i=0; i<count; i++) {
+		var info = gl.getActiveAttrib(program, i);
+		this.attributes[info.name] = gl.getAttribLocation(program, info.name);
+	}
 
-	(def.uniforms || []).forEach(function(name) {
-		this.uniforms[name] = gl.getUniformLocation(this.program, name);
-	}, this);
+	var count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+	for (var i=0; i<count; i++) {
+		var info = gl.getActiveUniform(program, i);
+		this.uniforms[info.name] = gl.getUniformLocation(program, info.name);
+	}
+
+	this.gl = gl;
+	this.program = program;
 }
 
 Program.prototype.use = function() {
