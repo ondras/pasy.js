@@ -1,0 +1,2 @@
+pasy.VertexShader = function() {
+}
