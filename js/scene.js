@@ -27,6 +27,8 @@ pasy.Scene = function(parent) {
 	this._gl = gl;
 	this._sync();
 
+	this._fps = new pasy.FPS(parent);
+
 	this._tick = this._tick.bind(this);
 	this._tick();
 }
@@ -53,6 +55,10 @@ pasy.Scene.prototype = {
 		this._node.style.height = y + "px";
 		this._sync();
 	},
+	
+	fps: function(style) {
+		this._fps.configure(style);
+	},
 
 	_sync: function() {
 		this._node.width = this._node.clientWidth;
@@ -63,6 +69,7 @@ pasy.Scene.prototype = {
 
 	_tick: function() {
 		requestAnimationFrame(this._tick);
+		this._fps.tick();
 		var gl = this._gl;
 		var camera = this._camera;
 
