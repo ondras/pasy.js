@@ -28,6 +28,7 @@ pasy.Scene = function(parent) {
 	this._sync();
 
 	this._fps = new pasy.FPS(parent);
+	this.fps({right:"10px", top:"10px"});
 
 	this._tick = this._tick.bind(this);
 	this._tick();
@@ -79,7 +80,7 @@ pasy.Scene.prototype = {
 		
 		/* program-independent stuff */
 
-		var t = Date.now() / 3e3;
+		var t = Date.now() / 5e3;
 		var R = 2;
 		this._eye[0] = R*Math.cos(t);
 		this._eye[2] = R*Math.sin(t);

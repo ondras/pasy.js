@@ -1,7 +1,7 @@
 var Program = function(gl, vsSource, fsSource) {
 	this._gl = gl;
 	this.attributes = {};
-	this.uniforms = {};
+	this._uniforms = {};
 
 	var vs = this._shaderFromString(gl.VERTEX_SHADER, vsSource);
 	var fs = this._shaderFromString(gl.FRAGMENT_SHADER, fsSource);
@@ -27,7 +27,7 @@ var Program = function(gl, vsSource, fsSource) {
 	var count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 	for (var i=0; i<count; i++) {
 		var info = gl.getActiveUniform(program, i);
-		this.uniforms[info.name] = gl.getUniformLocation(program, info.name);
+		this._uniforms[info.name] = this._uniformSetter(info, program);
 	}
 
 	this.program = program;
@@ -40,6 +40,78 @@ Program.prototype.use = function() {
 	for (var p in this.attributes) { 
 		gl.enableVertexAttribArray(this.attributes[p]);
 	}
+}
+
+Program.prototype.uniform = function(name, value) {
+	this._uniforms[name](value);
+}
+
+Program.prototype._uniformSetter = function(info, program) {
+	var gl = this._gl;
+	var location = gl.getUniformLocation(program, info.name);
+
+	var type = info.type;
+	// Check if this uniform is an array
+	var isArray = (info.size > 1 && info.name.substr(-3) == "[0]");
+	if (type == gl.FLOAT && isArray)
+		return function(v) { gl.uniform1fv(location, v); };
+	if (type == gl.FLOAT)
+		return function(v) { gl.uniform1f(location, v); };
+	if (type == gl.FLOAT_VEC2)
+		return function(v) { gl.uniform2fv(location, v); };
+	if (type == gl.FLOAT_VEC3)
+		return function(v) { gl.uniform3fv(location, v); };
+	if (type == gl.FLOAT_VEC4)
+		return function(v) { gl.uniform4fv(location, v); };
+	if (type == gl.INT && isArray)
+		return function(v) { gl.uniform1iv(location, v); };
+	if (type == gl.INT)
+		return function(v) { gl.uniform1i(location, v); };
+	if (type == gl.INT_VEC2)
+		return function(v) { gl.uniform2iv(location, v); };
+	if (type == gl.INT_VEC3)
+		return function(v) { gl.uniform3iv(location, v); };
+	if (type == gl.INT_VEC4)
+		return function(v) { gl.uniform4iv(location, v); };
+	if (type == gl.BOOL)
+		return function(v) { gl.uniform1iv(location, v); };
+	if (type == gl.BOOL_VEC2)
+		return function(v) { gl.uniform2iv(location, v); };
+	if (type == gl.BOOL_VEC3)
+		return function(v) { gl.uniform3iv(location, v); };
+	if (type == gl.BOOL_VEC4)
+		return function(v) { gl.uniform4iv(location, v); };
+	if (type == gl.FLOAT_MAT2)
+		return function(v) { gl.uniformMatrix2fv(location, false, v); };
+	if (type == gl.FLOAT_MAT3)
+		return function(v) { gl.uniformMatrix3fv(location, false, v); };
+	if (type == gl.FLOAT_MAT4)
+		return function(v) { gl.uniformMatrix4fv(location, false, v); };
+	if ((type == gl.SAMPLER_2D || type == gl.SAMPLER_CUBE) && isArray) {
+		var units = [];
+		for (var i = 0; i < info.size; i++) {
+			units.push(textureUnit++);
+		}
+		return function(bindPoint, units) {
+			return function(textures) {
+				gl.uniform1iv(location, units);
+				textures.forEach(function(texture, index) {
+					gl.activeTexture(gl.TEXTURE0 + units[index]);
+					gl.bindTexture(bindPoint, tetxure);
+				});
+			}
+		}(getBindPointForSamplerType(gl, type), units);
+	}
+	if (type == gl.SAMPLER_2D || type == gl.SAMPLER_CUBE)
+		return function(bindPoint, unit) {
+			return function(texture) {
+				gl.uniform1i(location, unit);
+				gl.activeTexture(gl.TEXTURE0 + unit);
+				gl.bindTexture(bindPoint, texture);
+			};
+		}(getBindPointForSamplerType(gl, type), textureUnit++);
+	
+	throw ("Unknown uniform type: 0x" + type.toString(16));
 }
 
 Program.prototype._shaderFromId = function(id) {
