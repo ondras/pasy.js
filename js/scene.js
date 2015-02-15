@@ -80,7 +80,7 @@ pasy.Scene.prototype = {
 		
 		/* program-independent stuff */
 
-		var t = Date.now() / 5e3;
+		var t = Date.now() / 5e3 * 0;
 		var R = 2;
 		this._eye[0] = R*Math.cos(t);
 		this._eye[2] = R*Math.sin(t);

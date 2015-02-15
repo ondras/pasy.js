@@ -111,7 +111,11 @@ pasy.ParticleSet.prototype = {
 		var lines = [];
 		for (var p in this._attributes) {
 			var a = this._attributes[p];
-			lines.push("attribute vec" + a.components + " " + p + ";");
+			if (a.components > 1) {
+				lines.push("attribute vec" + a.components + " " + p + ";");
+			} else {
+				lines.push("attribute float " + p + ";");
+			}
 		}
 
 		for (var p in this._uniforms) {
