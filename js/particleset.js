@@ -7,6 +7,8 @@ pasy.ParticleSet = function(gl) {
 	this._count = 1;
 	this._pointSize = 1;
 	this._pointSizeMax = null;
+	this._transform = mat4.create();
+	this._modelview = mat4.create();
 	this._program = null;
 }
 
@@ -17,7 +19,8 @@ pasy.ParticleSet.prototype = {
 		if (!this._program) { this._createProgram(); }
 		this._program.use();
 
-		this._program.uniform("u_view", camera.vMatrix);
+		mat4.multiply(this._modelview, camera.vMatrix, this._transform);
+		this._program.uniform("u_modelview", this._modelview);
 		this._program.uniform("u_projection", camera.pMatrix);
 
 		for (var p in this._uniforms) {
@@ -90,9 +93,27 @@ pasy.ParticleSet.prototype = {
 		this._fragment.push(line);
 		return this;
 	},
+	
+	transform: function(transform) {
+		this._transform = transform;
+		return this;
+	},
 
 	destroy: function() {
-		/* FIXME */
+		var gl = this._gl;
+		
+		if (this._program) {
+			this._program.destroy();
+			this._program = null;
+		}
+		
+		for (var p in this._attributes) {
+			var a = this._attributes[p];
+			gl.deleteBuffer(a.buffer);
+		}
+		
+		this._attributes = null;
+		this._uniforms = null;
 	},
 
 	_fillBuffer: function(a) {
@@ -125,7 +146,7 @@ pasy.ParticleSet.prototype = {
 			lines.push("uniform " + u.type + " " + p + ";");
 		}
 
-		lines.push("uniform mat4 u_view;");
+		lines.push("uniform mat4 u_modelview;");
 		lines.push("uniform mat4 u_projection;");
 
 		if (this._attributes["a_color"]) {
@@ -138,7 +159,7 @@ pasy.ParticleSet.prototype = {
 		
 		if (this._attributes["a_color"]) { lines.push("v_color = a_color;"); }
 
-		lines.push("vec4 cameraPosition = u_view * vec4(position, 1.0);");
+		lines.push("vec4 cameraPosition = u_modelview * vec4(position, 1.0);");
 		lines.push("gl_Position = u_projection * cameraPosition;");
 
 		if (this._pointSizeMax === null) {
@@ -149,7 +170,7 @@ pasy.ParticleSet.prototype = {
 			
 			lines.push("float distance2 = abs(dot(cameraPosition, cameraPosition));");
 			lines.push("distance2 = clamp(distance2, 1.0, 10.0) - 1.0;");
-			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " * (1.0 - distance2 / 10.0);");
+			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " * 2.0 / distance2;");
 		}
 
 		lines.push("}");
@@ -159,10 +180,6 @@ pasy.ParticleSet.prototype = {
 	_createFS: function() {
 		var lines = [];
 		lines.push("precision highp float;");
-		
-		if (this._decay) { /* FIXME */
-			lines.push("varying float vDecay;");
-		}
 		
 		if (this._attributes["a_color"]) {
 			lines.push("varying vec3 v_color;");
@@ -178,11 +195,9 @@ pasy.ParticleSet.prototype = {
 		lines.push("if (dist > 1.0) { discard; }");
 
 		lines.push("float alpha = 1.0-dist;");
-		lines.push("alpha = sin(alpha * 1.571);"); // FIXME?
+		lines.push("alpha = sin(alpha * 1.571);");
 		
-		if (this._decay) {
-			lines.push("alpha = alpha * vDecay;");
-		}
+		lines.push.apply(lines, this._fragment);
 		
 		if (this._attributes["a_color"]) {
 			lines.push("gl_FragColor = vec4(v_color, alpha);");

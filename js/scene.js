@@ -49,6 +49,7 @@ pasy.Scene.prototype = {
 			case "mousedown":
 				e.target.addEventListener("mousemove", this);
 				e.target.addEventListener("mouseup", this);
+				e.target.addEventListener("mouseout", this);
 				this._eye.mouse = [e.clientX, e.clientY];
 			break;
 
@@ -60,10 +61,12 @@ pasy.Scene.prototype = {
 				this._eye.phi -= (2*Math.PI * deltaX) / (e.target.clientWidth);
 			break;
 
+			case "mouseout":
 			case "mouseup":
 				this._eye.mouse = null;
 				e.target.removeEventListener("mousemove", this);
 				e.target.removeEventListener("mouseup", this);
+				e.target.removeEventListener("mouseout", this);
 			break;
 		}
 	},

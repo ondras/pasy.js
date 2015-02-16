@@ -30,16 +30,20 @@ var Program = function(gl, vsSource, fsSource) {
 		this._uniforms[info.name] = this._uniformSetter(info, program);
 	}
 
-	this.program = program;
+	this._program = program;
 }
 
 Program.prototype.use = function() {
 	var gl = this._gl;
-	gl.useProgram(this.program);
+	gl.useProgram(this._program);
 
 	for (var p in this.attributes) { 
 		gl.enableVertexAttribArray(this.attributes[p]);
 	}
+}
+
+Program.prototype.destroy = function() {
+	this._gl.deleteProgram(this._program);
 }
 
 Program.prototype.uniform = function(name, value) {
