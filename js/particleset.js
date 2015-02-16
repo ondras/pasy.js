@@ -144,9 +144,12 @@ pasy.ParticleSet.prototype = {
 		if (this._pointSizeMax === null) {
 			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + ";");
 		} else {
+			var ps = this._pointSize;
+			var PS = this._pointSizeMax;
+			
 			lines.push("float distance2 = abs(dot(cameraPosition, cameraPosition));");
-			lines.push("distance2 = clamp(distance2, 0.0, 20.0);");
-			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " / distance2;");
+			lines.push("distance2 = clamp(distance2, 1.0, 10.0) - 1.0;");
+			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " * (1.0 - distance2 / 10.0);");
 		}
 
 		lines.push("}");

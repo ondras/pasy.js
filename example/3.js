@@ -1,12 +1,14 @@
 var scene = new pasy.Scene(document.body);
 scene
-	.distance(1);
+	.theta(0.9)
+	.distance(1.5)
+	.rotate(0);
 
 var ps = scene.particleSet();
 var now = Date.now();
 ps
-	.pointSize(1, 50)
-	.count(10000)
+	.pointSize(1, 6)
+	.count(50000)
 	.color([.1, .2, .4])
 	.uniform("gravity", "vec3", function() { return [0, -1, 0]; })
 	.uniform("life", "float", function() { return 3; })
@@ -20,8 +22,8 @@ ps
 		}
 		return new Float32Array(data);
 	})
-	.vertex("float theta = 0.2 + a_random[0]/5.0;")
-	.vertex("float phi = a_random[1]*6.28;")
+	.vertex("float theta = 0.3 + a_random[0]/20.0;")
+	.vertex("float phi = a_random[1]*6.282;")
 	.vertex("float z = sin(theta) * cos(phi);")
 	.vertex("float x = sin(theta) * sin(phi);")
 	.vertex("float y = cos(theta);")
