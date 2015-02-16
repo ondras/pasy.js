@@ -1,13 +1,13 @@
 var scene = new pasy.Scene(document.body);
 scene
-	.distance(3);
+	.distance(1);
 
 var ps = scene.particleSet();
 var now = Date.now();
 ps
-	.pointSize(12)
+	.pointSize(1, 50)
 	.count(10000)
-	.color([.1, .4, .8])
+	.color([.1, .2, .4])
 	.uniform("gravity", "vec3", function() { return [0, -1, 0]; })
 	.uniform("life", "float", function() { return 3; })
 	.uniform("time", "float", function() { return (Date.now()-now)/1000; })

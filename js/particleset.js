@@ -6,6 +6,7 @@ pasy.ParticleSet = function(gl) {
 	this._fragment = [];
 	this._count = 1;
 	this._pointSize = 1;
+	this._pointSizeMax = null;
 	this._program = null;
 }
 
@@ -70,8 +71,9 @@ pasy.ParticleSet.prototype = {
 		return this;
 	},
 
-	pointSize: function(pointSize) {
+	pointSize: function(pointSize, pointSizeMax) {
 		this._pointSize = pointSize;
+		this._pointSizeMax = arguments.length > 1 ? pointSizeMax : null;
 
 		if (this._program) { this._program.destroy(); }
 		this._program = null;
@@ -135,8 +137,18 @@ pasy.ParticleSet.prototype = {
 		lines.push.apply(lines, this._vertex);
 		
 		if (this._attributes["a_color"]) { lines.push("v_color = a_color;"); }
-		lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + ";");
-		lines.push("gl_Position = u_projection * u_view * vec4(position, 1.0);");
+
+		lines.push("vec4 cameraPosition = u_view * vec4(position, 1.0);");
+		lines.push("gl_Position = u_projection * cameraPosition;");
+
+		if (this._pointSizeMax === null) {
+			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + ";");
+		} else {
+			lines.push("float distance2 = abs(dot(cameraPosition, cameraPosition));");
+			lines.push("distance2 = clamp(distance2, 0.0, 20.0);");
+			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " / distance2;");
+		}
+
 		lines.push("}");
 		return lines.join("\n");
 	},
