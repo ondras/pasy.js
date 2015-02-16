@@ -168,8 +168,7 @@ pasy.ParticleSet.prototype = {
 			var ps = this._pointSize;
 			var PS = this._pointSizeMax;
 			
-			lines.push("float distance2 = abs(dot(cameraPosition, cameraPosition));");
-			lines.push("distance2 = clamp(distance2, 1.0, 10.0) - 1.0;");
+			lines.push("float distance2 = abs(dot(cameraPosition, cameraPosition)) - 1.0;");
 			lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + " + " + this._pointSizeMax.toFixed(2) + " * 2.0 / distance2;");
 		}
 
