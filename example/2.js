@@ -6,8 +6,8 @@ ps
 	.pointSize(4)
 	.count(10000)
 	.color([.1, .4, .8])
-	.uniform("start", "int", function() { return now; })
-	.uniform("now", "int", function() { return Date.now(); })
+	.uniform("start", "float", function() { return now; })
+	.uniform("now", "float", function() { return Date.now(); })
 	.attribute("velocity", 3, function(gl, count) {
 		return pasy.randomSet(count, vec3, 0.05);
 	})

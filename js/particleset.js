@@ -134,12 +134,8 @@ pasy.ParticleSet.prototype = {
 		
 		lines.push.apply(lines, this._vertex);
 		
+		if (this._attributes["a_color"]) { lines.push("v_color = a_color;"); }
 		lines.push("gl_PointSize = " + this._pointSize.toFixed(2) + ";");
-
-		if (this._attributes["a_color"]) {
-			lines.push("v_color = a_color;");
-		}
-
 		lines.push("gl_Position = u_projection * u_view * vec4(position, 1.0);");
 		lines.push("}");
 		return lines.join("\n");

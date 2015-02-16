@@ -2,6 +2,7 @@ pasy.Scene = function(parent) {
 	this._particleSets = [];
 	this._camera = new Camera();
 
+	this._distance = 1;
 	this._eye = vec3.create();
 	this._center = vec3.create();
 	this._up = vec3.fromValues(0, 1, 0);
@@ -61,6 +62,11 @@ pasy.Scene.prototype = {
 		this._fps.configure(style);
 	},
 
+	distance: function(distance) {
+		this._distance = distance;
+		return this;
+	},
+
 	_sync: function() {
 		this._node.width = this._node.clientWidth;
 		this._node.height = this._node.clientHeight;
@@ -80,10 +86,9 @@ pasy.Scene.prototype = {
 		
 		/* program-independent stuff */
 
-		var t = Date.now() / 5e3 * 0;
-		var R = 2;
-		this._eye[0] = R*Math.cos(t);
-		this._eye[2] = R*Math.sin(t);
+		var t = Date.now() / 1e3 * 0;
+		this._eye[0] = this._distance*Math.cos(t);
+		this._eye[2] = this._distance*Math.sin(t);
 		camera.lookAt(this._eye, this._center, this._up);
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
