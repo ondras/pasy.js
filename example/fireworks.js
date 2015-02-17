@@ -1,3 +1,5 @@
+/* count */
+
 var scene = new pasy.Scene(document.body);
 scene
 	.distance(3);

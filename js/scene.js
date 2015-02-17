@@ -39,6 +39,18 @@ pasy.Scene = function(parent) {
 	this._fps = new pasy.FPS(parent);
 	this.fps({right:"10px", top:"10px"});
 
+	this._controls = document.createElement("div");
+	var style = {
+		position: "absolute",
+		right: 0,
+		bottom: 0,
+		width: "200px"
+	};
+
+	for (var p in style) { this._controls.style[p] = style[p]; }
+
+	parent.appendChild(this._controls);
+
 	this._tick = this._tick.bind(this);
 	this._tick();
 }
@@ -47,9 +59,9 @@ pasy.Scene.prototype = {
 	handleEvent: function(e) {
 		switch (e.type) {
 			case "mousedown":
-				e.target.addEventListener("mousemove", this);
-				e.target.addEventListener("mouseup", this);
-				e.target.addEventListener("mouseout", this);
+				document.addEventListener("mousemove", this);
+				document.addEventListener("mouseup", this);
+				document.addEventListener("mouseout", this);
 				this._eye.mouse = [e.clientX, e.clientY];
 			break;
 
@@ -64,15 +76,19 @@ pasy.Scene.prototype = {
 			case "mouseout":
 			case "mouseup":
 				this._eye.mouse = null;
-				e.target.removeEventListener("mousemove", this);
-				e.target.removeEventListener("mouseup", this);
-				e.target.removeEventListener("mouseout", this);
+				document.removeEventListener("mousemove", this);
+				document.removeEventListener("mouseup", this);
+				document.removeEventListener("mouseout", this);
 			break;
 		}
 	},
 
 	particleSet: function() {
 		return new pasy.ParticleSet(this._gl);
+	},
+
+	control: function(options, callback) {
+		return new pasy.Control(this._controls, options, callback);
 	},
 
 	add: function(particleSet) {

@@ -1,8 +1,9 @@
+/* count, gravity, particle theta, rotate */
+
 var scene = new pasy.Scene(document.body);
 scene
 	.theta(0.9)
 	.distance(1.5)
-	.rotate(0);
 
 var ps = scene.particleSet();
 var now = Date.now();

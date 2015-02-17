@@ -1,3 +1,5 @@
+/* pointsize, count, depth, life */
+
 var scene = new pasy.Scene(document.body);
 scene
 	.distance(0.1)
@@ -27,3 +29,12 @@ ps
 	.vertex("vec3 position = vec3(a_position, u_depth * (age / u_life - 1.0));")
 
 scene.add(ps);
+
+scene.control({
+	label: "particles",
+	min: 1e2,
+	max: 1e6,
+	scale: "log10",
+	value: 1e4,
+	round: 1e2
+}, function(x) { ps.count(x); });

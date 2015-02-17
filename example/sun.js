@@ -1,3 +1,5 @@
+/* rotate speed, distance, pointsize, spread, count */
+
 var scene = new pasy.Scene(document.body);
 scene
 	.distance(2)
