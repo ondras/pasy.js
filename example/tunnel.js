@@ -1,20 +1,19 @@
-/* pointsize, count, depth, life */
-
-var scene = new pasy.Scene(document.body);
-scene
+var scene = new pasy.Scene(document.body)
 	.distance(0.1)
 
-var ps = scene.particleSet();
+var count = 1e5;
+var life = 15;
+
 var now = Date.now();
-ps
+var ps = scene.particleSet()
 	.pointSize(1, 50)
-	.count(100000)
+	.count(count)
 	.color(function(gl, count) {
 		return pasy.randomSet(count, vec3);
 	})
-	.uniform("life", "float", function() { return 15; })
+	.time()
+	.uniform("life", "float", function() { return life; })
 	.uniform("depth", "float", function() { return 40; })
-	.uniform("time", "float", function() { return (Date.now()-now)/1000; })
 	.attribute("position", 2, function(gl, count) {
 		return pasy.randomSet(count, vec2);
 	})
@@ -32,9 +31,18 @@ scene.add(ps);
 
 scene.control({
 	label: "particles",
-	min: 1e2,
+	min: 1e3,
 	max: 1e6,
-	scale: "log10",
-	value: 1e4,
-	round: 1e2
-}, function(x) { ps.count(x); });
+	scale: "log",
+	round: 1e3,
+	value: count,
+	callback: function(x) { ps.count(x); }
+});
+
+scene.control({
+	label: "lifetime",
+	min: 1,
+	max: 100,
+	value: life,
+	callback: function(x) { life = x; }
+});

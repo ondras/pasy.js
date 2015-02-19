@@ -1,8 +1,9 @@
-pasy.Control = function(parent, options, callback) {
+pasy.Control = function(parent, options) {
 	this._options = {
 		min: 0,
 		max: 100,
 		value: 50,
+		callback: function(value) {},
 		height: 32,
 		font: 16,
 		round: 0,
@@ -10,8 +11,6 @@ pasy.Control = function(parent, options, callback) {
 		label: "value"
 	}
 	for (var p in options) { this._options[p] = options[p]; }
-
-	this._callback = callback;
 
 	var node = document.createElement("canvas");
 	parent.appendChild(node);
@@ -56,7 +55,7 @@ pasy.Control.prototype = {
 	setValue: function(value) {
 		value = this._validate(value);
 		this._draw(value);
-		this._callback && this._callback(value);
+		this._options.callback(value);
 	},
 
 	_processMouse: function(clientX) {
@@ -111,7 +110,7 @@ pasy.Control.prototype = {
 			 	return size;
 			 }
 		},
-		log10: {
+		log: {
 			 value2size: function(value) {
 			 	var base = 10;
 			 	return Math.log((base-1)*value + 1) / Math.log(base);

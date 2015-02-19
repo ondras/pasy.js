@@ -28,6 +28,7 @@ pasy.Scene = function(parent) {
 	}
 	
 	node.addEventListener("mousedown", this);
+	node.addEventListener("wheel", this);
 
 	parent.appendChild(node);
 	gl.enable(gl.BLEND);
@@ -44,7 +45,8 @@ pasy.Scene = function(parent) {
 		position: "absolute",
 		right: 0,
 		bottom: 0,
-		width: "200px"
+		width: "200px",
+		backgroundColor: "rgba(200, 200, 200, 0.2)"
 	};
 
 	for (var p in style) { this._controls.style[p] = style[p]; }
@@ -58,6 +60,10 @@ pasy.Scene = function(parent) {
 pasy.Scene.prototype = {
 	handleEvent: function(e) {
 		switch (e.type) {
+			case "wheel":
+				this._eye.distance += 0.2 * (e.deltaY > 0 ? 1 : -1);
+			break;
+
 			case "mousedown":
 				document.addEventListener("mousemove", this);
 				document.addEventListener("mouseup", this);
@@ -87,8 +93,8 @@ pasy.Scene.prototype = {
 		return new pasy.ParticleSet(this._gl);
 	},
 
-	control: function(options, callback) {
-		return new pasy.Control(this._controls, options, callback);
+	control: function(options) {
+		return new pasy.Control(this._controls, options);
 	},
 
 	add: function(particleSet) {

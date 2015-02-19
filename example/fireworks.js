@@ -1,13 +1,10 @@
-/* count */
-
-var scene = new pasy.Scene(document.body);
-scene
+var scene = new pasy.Scene(document.body)
 	.distance(3);
 
+var count = 2e3;
 
 var explode = function() {
 	var ps = scene.particleSet();
-	var life = 2;
 	
 	var transform = mat4.create();
 	mat4.translate(transform, transform, [
@@ -17,13 +14,14 @@ var explode = function() {
 	]);
 
 	var now = Date.now();
+	var life = 2;
 	ps
 		.transform(transform)
 		.pointSize(2, 20)
-		.count(2000)
+		.count(count)
 		.color([Math.random(), Math.random(), Math.random()])
+		.time()
 		.uniform("gravity", "vec3", function() { return [0, -0.5, 0]; })
-		.uniform("time", "float", function() { return (Date.now()-now)/1000; })
 		.uniform("life", "float", function() { return life; })
 		.attribute("velocity", 3, function(gl, count) {
 			return pasy.randomSet(count, vec3, 0.1);
@@ -45,3 +43,13 @@ var explode = function() {
 }
 
 explode();
+
+scene.control({
+	label: "particles",
+	min: 1e2,
+	max: 5e4,
+	scale: "log",
+	round: 1e2,
+	value: count,
+	callback: function(x) { count = x; }
+});

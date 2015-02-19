@@ -15,10 +15,16 @@
 			html, body { height: 100%; margin: 0; }
 			canvas { display: block; width: 100%; }
 			body > canvas { height: 100%; }
-
 		</style>
 	</head>
 	<body>
-		<script src="example/tunnel.js"></script>
+		<script>
+			var r = location.search.substring(1);
+			if (r) {
+				var s = document.createElement("script");
+				s.src = "example/" + r + ".js";
+				document.body.appendChild(s);
+			}
+		</script>
 	</body>
 </html>

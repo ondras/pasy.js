@@ -13,6 +13,7 @@ pasy.ParticleSet = function(gl) {
 }
 
 pasy.ParticleSet.prototype = {
+	/* general api */
 	render: function(camera) {
 		var gl = this._gl;
 
@@ -36,8 +37,47 @@ pasy.ParticleSet.prototype = {
 		gl.drawArrays(gl.POINTS, 0, this._count);
 	},
 
+	count: function(count) {
+		this._count = count;
+		for (var p in this._attributes) {
+			this._fillBuffer(this._attributes[p]);
+		}
+		return this;
+	},
+
+	pointSize: function(pointSize, pointSizeMax) {
+		this._pointSize = pointSize;
+		this._pointSizeMax = arguments.length > 1 ? pointSizeMax : null;
+
+		if (this._program) { this._program.destroy(); }
+		this._program = null;
+
+		return this;
+	},
+
+	transform: function(transform) {
+		this._transform = transform;
+		return this;
+	},
+
+	destroy: function() {
+		var gl = this._gl;
+		
+		if (this._program) {
+			this._program.destroy();
+			this._program = null;
+		}
+		
+		for (var p in this._attributes) { this._destroyAttribute(p); }
+		
+		this._attributes = null;
+		this._uniforms = null;
+	},
+
+	/* low-level shader api */
 	attribute: function(name, components, callback) {
 		name = "a_" + name;
+		if (name in this._attributes) { this._destroyAttribute(name); }
 		var obj = {
 			buffer: this._gl.createBuffer(),
 			components: components,
@@ -57,33 +97,6 @@ pasy.ParticleSet.prototype = {
 		return this;
 	},
 
-	color: function(color) {
-		if (typeof(color) == "function") { /* define an attribute */
-			this.attribute("color", 3, color);
-		} else { /* define a uniform */
-			this.uniform("color", "vec3", function() { return color; });
-		}
-		return this;
-	},
-
-	count: function(count) {
-		this._count = count;
-		for (var p in this._attributes) {
-			this._fillBuffer(this._attributes[p]);
-		}
-		return this;
-	},
-
-	pointSize: function(pointSize, pointSizeMax) {
-		this._pointSize = pointSize;
-		this._pointSizeMax = arguments.length > 1 ? pointSizeMax : null;
-
-		if (this._program) { this._program.destroy(); }
-		this._program = null;
-
-		return this;
-	},
-	
 	vertex: function(line) {
 		this._vertex.push(line);
 		return this;
@@ -93,27 +106,25 @@ pasy.ParticleSet.prototype = {
 		this._fragment.push(line);
 		return this;
 	},
-	
-	transform: function(transform) {
-		this._transform = transform;
+
+	/* high-level shader api */
+	color: function(color) {
+		if (typeof(color) == "function") { /* define an attribute */
+			this.attribute("color", 3, color);
+		} else { /* define a uniform */
+			this.uniform("color", "vec3", function() { return color; });
+		}
 		return this;
 	},
 
-	destroy: function() {
-		var gl = this._gl;
-		
-		if (this._program) {
-			this._program.destroy();
-			this._program = null;
-		}
-		
-		for (var p in this._attributes) {
-			var a = this._attributes[p];
-			gl.deleteBuffer(a.buffer);
-		}
-		
-		this._attributes = null;
-		this._uniforms = null;
+	time: function() {
+		var start = Date.now();
+		return this.uniform("time", "float", function() { return (Date.now()-start)/1000; })
+	},
+
+	_destroyAttribute: function(name) {
+		var a = this._attributes[name];
+		gl.deleteBuffer(a.buffer);
 	},
 
 	_fillBuffer: function(a) {
