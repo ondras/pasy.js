@@ -19,7 +19,7 @@ scene.add(ps);
 scene.control({
 	label: "particles",
 	min: 1e3,
-	max: 1e6,
+	max: 2e6,
 	scale: "log",
 	round: 1e3,
 	value: count,
